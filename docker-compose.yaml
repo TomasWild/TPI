@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  database:
+    container_name: MySQL
+    image: mysql:latest
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    restart: always
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - mysql-phpmyadmin
+  phpmyadmin:
+    container_name: PhpMyAdmin
+    image: phpmyadmin
+    depends_on:
+      - database
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: database
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: root
+    restart: always
+    networks:
+      - mysql-phpmyadmin
+
+networks:
+  mysql-phpmyadmin:
+    driver: bridge
+
+volumes:
+  db_data:
