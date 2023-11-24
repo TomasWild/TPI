@@ -1,5 +1,6 @@
 package com.utn.argentina_programa.incident_reporting_system.model;
 
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
@@ -8,13 +9,15 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -25,16 +28,21 @@ public class Technician {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @NotEmpty(message = "Name cannot be empty.")
     private String name;
-    @ElementCollection
-    private List<String> skills = new ArrayList<>();
+    @ElementCollection(targetClass = String.class)
+    @CollectionTable(
+        name = "technician_skills",
+        joinColumns = @JoinColumn(name = "technician_id")
+    )
+    @Column(name = "skills")
+    private Set<String> skills = new HashSet<>();
     @Enumerated(value = EnumType.STRING)
-    @Column(name = "means_of_notification")
     private MeansOfNotification meansOfNotification;
     private boolean isAvailable;
 
     public Technician(String name,
-                      List<String> skills,
+                      Set<String> skills,
                       MeansOfNotification meansOfNotification,
                       boolean isAvailable) {
         this.name = name;

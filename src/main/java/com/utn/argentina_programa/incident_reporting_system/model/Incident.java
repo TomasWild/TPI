@@ -1,13 +1,18 @@
 package com.utn.argentina_programa.incident_reporting_system.model;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,16 +28,26 @@ public class Incident {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @ManyToOne
+    @JoinColumn(name = "client_id")
     private Client client;
+    @ManyToOne
+    @JoinColumn(name = "technician_id")
     private Technician technician;
+    @ManyToOne
+    @JoinColumn(name = "problem_id")
     private Problem problem;
+    @NotEmpty(message = "You must provided a description of the problem.")
+    @Max(
+        value = 1000,
+        message = "Description must be less than 1000 characters."
+    )
     private String description;
-    @Enumerated(value = EnumType.STRING)
-    @Column(name = "state")
+    @Enumerated(EnumType.STRING)
     private State state;
-    @Column(columnDefinition = "DATE")
+    @Temporal(TemporalType.DATE)
     private LocalDate creationDate;
-    @Column(columnDefinition = "DATE")
+    @Temporal(TemporalType.DATE)
     private LocalDate resolutionDate;
 
     public Incident(Client client,
