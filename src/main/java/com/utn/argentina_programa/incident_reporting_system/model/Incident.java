@@ -11,11 +11,11 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
-import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.Length;
 
 import java.time.LocalDate;
 
@@ -38,10 +38,11 @@ public class Incident {
     @JoinColumn(name = "problem_id")
     private Problem problem;
     @NotEmpty(message = "You must provided a description of the problem.")
-    @Max(
-        value = 1000,
+    @Length(
+        max = 1000,
         message = "Description must be less than 1000 characters."
     )
+    private String title;
     private String description;
     @Enumerated(EnumType.STRING)
     private State state;
