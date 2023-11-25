@@ -27,6 +27,7 @@ import java.util.Set;
 public class Problem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "problem_id")
     private Long id;
     private String typeOfProblem;
     @ElementCollection
@@ -34,7 +35,6 @@ public class Problem {
         name = "problem_skills_needed",
         joinColumns = @JoinColumn(name = "problem_id")
     )
-    @Column(name = "skills_needed")
     private Set<String> skillsNeeded = new HashSet<>();
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime maximumResolutionTime;

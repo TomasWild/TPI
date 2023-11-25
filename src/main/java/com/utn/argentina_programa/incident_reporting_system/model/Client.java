@@ -25,6 +25,7 @@ import java.util.Set;
 public class Client {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "client_id")
     private Long id;
     @NotEmpty(message = "Business name cannot be empty.")
     private String businessName;
@@ -35,7 +36,6 @@ public class Client {
         name = "hired_services",
         joinColumns = @JoinColumn(name = "client_id")
     )
-    @Column(name = "hired_services")
     private Set<String> hiredServices = new HashSet<>();
 
     public Client(String businessName,

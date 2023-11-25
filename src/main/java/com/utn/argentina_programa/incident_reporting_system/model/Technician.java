@@ -27,6 +27,7 @@ import java.util.Set;
 public class Technician {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "technician_id")
     private Long id;
     @NotEmpty(message = "Name cannot be empty.")
     private String name;
@@ -35,7 +36,6 @@ public class Technician {
         name = "technician_skills",
         joinColumns = @JoinColumn(name = "technician_id")
     )
-    @Column(name = "skills")
     private Set<String> skills = new HashSet<>();
     @Enumerated(value = EnumType.STRING)
     private MeansOfNotification meansOfNotification;

@@ -1,5 +1,6 @@
 package com.utn.argentina_programa.incident_reporting_system.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -27,6 +28,7 @@ import java.time.LocalDate;
 public class Incident {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "incident_id")
     private Long id;
     @ManyToOne
     @JoinColumn(name = "client_id")
