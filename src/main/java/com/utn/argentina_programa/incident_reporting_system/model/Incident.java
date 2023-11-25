@@ -37,12 +37,13 @@ public class Incident {
     @ManyToOne
     @JoinColumn(name = "problem_id")
     private Problem problem;
+    @NotEmpty(message = "You must provided a title for the problem.")
+    private String title;
     @NotEmpty(message = "You must provided a description of the problem.")
     @Length(
         max = 1000,
         message = "Description must be less than 1000 characters."
     )
-    private String title;
     private String description;
     @Enumerated(EnumType.STRING)
     private State state;
@@ -54,6 +55,7 @@ public class Incident {
     public Incident(Client client,
                     Technician technician,
                     Problem problem,
+                    String title,
                     String description,
                     State state,
                     LocalDate creationDate,
@@ -61,6 +63,7 @@ public class Incident {
         this.client = client;
         this.technician = technician;
         this.problem = problem;
+        this.title = title;
         this.description = description;
         this.state = state;
         this.creationDate = creationDate;

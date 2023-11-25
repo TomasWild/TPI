@@ -40,13 +40,14 @@ public class IncidentServiceTest {
     public void testCreateIncident() {
         Incident incident = new Incident(
             1L,
-            new Client("Client Test", "123456789", Set.of("SAP", "Windows")),
-            new Technician("Technician Test", Set.of(), MeansOfNotification.EMAIL, true),
-            new Problem("Problem test", Set.of(), LocalDateTime.now().plusMonths(1L)),
+            new Client(),
+            new Technician(),
+            new Problem(),
+            "Title test",
             "Description test",
             State.IN_PROGRESS,
             LocalDate.now(),
-            LocalDate.now().plusDays(3L)
+            LocalDate.now().plusDays(7L)
         );
         when(incidentRepository.save(incident)).thenReturn(incident);
         Long incidentId = incidentService.createIncident(incident);
@@ -57,20 +58,20 @@ public class IncidentServiceTest {
     public void testFindAllIncidents() {
         List<Incident> expectedIncidents = Arrays.asList(
             new Incident(
-                1L,
                 new Client("Client Test 1", "123456789", Set.of("SAP", "Windows")),
                 new Technician("Technician Test 1", Set.of(), MeansOfNotification.EMAIL, true),
                 new Problem("Problem test 1", Set.of(), LocalDateTime.now().plusMonths(1L)),
+                "Title test",
                 "Description test 1",
                 State.IN_PROGRESS,
                 LocalDate.now(),
                 LocalDate.now().plusDays(8L)
             ),
             new Incident(
-                2L,
                 new Client("Client Test 2", "987654321", Set.of("Tango", "MacOS")),
                 new Technician("Technician Test 2", Set.of(), MeansOfNotification.WHATSAPP, false),
                 new Problem("Problem test 2", Set.of(), LocalDateTime.now().plusHours(2L)),
+                "Title test",
                 "Description test 2",
                 State.IN_PROGRESS,
                 LocalDate.now(),
