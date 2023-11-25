@@ -31,7 +31,7 @@ public class Technician {
     private Long id;
     @NotEmpty(message = "Name cannot be empty.")
     private String name;
-    @ElementCollection(targetClass = String.class)
+    @ElementCollection
     @CollectionTable(
         name = "technician_skills",
         joinColumns = @JoinColumn(name = "technician_id")
