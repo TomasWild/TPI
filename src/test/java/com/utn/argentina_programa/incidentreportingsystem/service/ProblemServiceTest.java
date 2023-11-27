@@ -19,6 +19,8 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -72,6 +74,45 @@ public class ProblemServiceTest {
         Long problemId = 1L;
         when(problemRepository.findById(problemId)).thenReturn(Optional.empty());
         assertThrows(ProblemNotFoundException.class, () -> problemService.findProblemById(problemId));
+    }
+
+    @Test
+    public void testUpdateClientSuccess() {
+        Long problemId = 1L;
+        Problem existingProblem = new Problem(
+            1L,
+            "Test 1",
+            Set.of("SAP", "Windows"),
+            LocalDateTime.now()
+        );
+        Problem updateProblem = new Problem(
+            1L,
+            "Test update",
+            Set.of("SAP", "Windows"),
+            LocalDateTime.now()
+        );
+        when(problemRepository.findById(problemId)).thenReturn(Optional.of(existingProblem));
+        when(problemRepository.save(any())).thenReturn(existingProblem);
+        Problem result = problemService.updateProblem(problemId, updateProblem);
+        assertEquals(updateProblem.getTypeOfProblem(), existingProblem.getTypeOfProblem());
+        assertEquals(updateProblem.getSkillsNeeded(), existingProblem.getSkillsNeeded());
+        assertEquals(updateProblem.getMaximumResolutionTime(), existingProblem.getMaximumResolutionTime());
+        verify(problemRepository, times(1)).findById(problemId);
+        verify(problemRepository, times(1)).save(existingProblem);
+    }
+
+    @Test
+    public void testUpdateProblemNotFound() {
+        Long problemId = 1L;
+        Problem updateProblem = new Problem(
+            "Test",
+            Set.of("SAP", "Windows"),
+            LocalDateTime.now()
+        );
+        when(problemRepository.findById(problemId)).thenReturn(Optional.empty());
+        assertThrows(ProblemNotFoundException.class, () -> problemService.updateProblem(problemId, updateProblem));
+        verify(problemRepository, times(1)).findById(problemId);
+        verify(problemRepository, never()).save(any());
     }
 
     @Test

@@ -27,6 +27,16 @@ public class ProblemService {
             .orElseThrow(() -> new ProblemNotFoundException("Problem with ID " + id + " not found."));
     }
 
+    public Problem updateProblem(Long id,
+                                 Problem updateProblem) {
+        Problem existingProblem = problemRepository.findById(id)
+            .orElseThrow(() -> new ProblemNotFoundException("Problem with ID " + id + " not found."));
+        existingProblem.setTypeOfProblem(updateProblem.getTypeOfProblem());
+        existingProblem.setSkillsNeeded(updateProblem.getSkillsNeeded());
+        existingProblem.setMaximumResolutionTime(updateProblem.getMaximumResolutionTime());
+        return problemRepository.save(existingProblem);
+    }
+
     public void deleteProblemById(Long id) {
         Problem problem = problemRepository.findById(id)
             .orElseThrow(() -> new ProblemNotFoundException("Problem with ID " + id + " not found."));

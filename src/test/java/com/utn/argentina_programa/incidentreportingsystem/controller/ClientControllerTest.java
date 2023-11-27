@@ -7,7 +7,6 @@ import com.utn.argentina_programa.incident_reporting_system.model.Client;
 import com.utn.argentina_programa.incident_reporting_system.service.ClientService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentMatchers;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -25,13 +24,16 @@ import java.util.List;
 import java.util.Set;
 
 import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ContextConfiguration(classes = IncidentReportingSystemApplication.class)
 @WebMvcTest(controllers = ClientController.class)
@@ -52,7 +54,7 @@ public class ClientControllerTest {
             "123456789",
             Set.of("SAP", "Windows")
         );
-        given(clientService.createClient(ArgumentMatchers.any()))
+        given(clientService.createClient(any()))
             .willAnswer((invocation -> {
                 Client createdClient = invocation.getArgument(0);
                 return createdClient.getId();
@@ -60,7 +62,7 @@ public class ClientControllerTest {
         ResultActions response = mockMvc.perform(post("/api/v1/clients")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(client)));
-        response.andExpect(MockMvcResultMatchers.status().isCreated())
+        response.andExpect(status().isCreated())
             .andDo(MockMvcResultHandlers.print());
     }
 
@@ -73,7 +75,7 @@ public class ClientControllerTest {
         when(clientService.findAllClients()).thenReturn(clients);
         ResultActions response = mockMvc.perform(get("/api/v1/clients")
             .contentType(MediaType.APPLICATION_JSON));
-        response.andExpect(MockMvcResultMatchers.status().isOk())
+        response.andExpect(status().isOk())
             .andExpect(jsonPath("$", hasSize(clients.size())))
             .andDo(MockMvcResultHandlers.print());
     }
@@ -89,8 +91,25 @@ public class ClientControllerTest {
         when(clientService.findClientById(clientId)).thenReturn(client);
         ResultActions response = mockMvc.perform(get("/api/v1/clients/{id}", clientId)
             .contentType(MediaType.APPLICATION_JSON));
-        response.andExpect(MockMvcResultMatchers.status().isOk())
+        response.andExpect(status().isOk())
             .andExpect(MockMvcResultMatchers.content().json(objectMapper.writeValueAsString(client)))
+            .andDo(MockMvcResultHandlers.print());
+    }
+
+    @Test
+    public void testUpdateClientApi() throws Exception {
+        Long clientId = 1L;
+        Client updatedClient = new Client(
+            "Updated Client Test",
+            "123456789",
+            Set.of("SAP", "Windows")
+        );
+        given(clientService.updateClient(clientId, updatedClient)).willReturn(updatedClient);
+        ResultActions response = mockMvc.perform(put("/api/v1/clients/{id}", clientId)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(updatedClient)));
+        response.andExpect(status().isOk())
+            .andExpect(MockMvcResultMatchers.content().json(objectMapper.writeValueAsString(updatedClient)))
             .andDo(MockMvcResultHandlers.print());
     }
 
@@ -100,7 +119,7 @@ public class ClientControllerTest {
         doNothing().when(clientService).deleteClientById(clientId);
         ResultActions response = mockMvc.perform(delete("/api/v1/clients/{id}", clientId)
             .contentType(MediaType.APPLICATION_JSON));
-        response.andExpect(MockMvcResultMatchers.status().isOk())
+        response.andExpect(status().isOk())
             .andDo(MockMvcResultHandlers.print());
     }
 }

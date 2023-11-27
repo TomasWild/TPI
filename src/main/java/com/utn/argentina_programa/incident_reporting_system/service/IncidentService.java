@@ -27,6 +27,21 @@ public class IncidentService {
             .orElseThrow(() -> new IncidentNotFoundException("Incident with ID " + id + " not found."));
     }
 
+    public Incident updateIncident(Long id,
+                                  Incident updateIncident) {
+        Incident existingIncident = incidentRepository.findById(id)
+            .orElseThrow(() -> new IncidentNotFoundException("Incident with ID " + id + " not found."));
+        existingIncident.setClient(updateIncident.getClient());
+        existingIncident.setTechnician(updateIncident.getTechnician());
+        existingIncident.setProblem(updateIncident.getProblem());
+        existingIncident.setTitle(updateIncident.getTitle());
+        existingIncident.setDescription(updateIncident.getDescription());
+        existingIncident.setState(updateIncident.getState());
+        existingIncident.setCreationDate(updateIncident.getCreationDate());
+        existingIncident.setResolutionDate(updateIncident.getResolutionDate());
+        return incidentRepository.save(existingIncident);
+    }
+
     public void deleteIncidentById(Long id) {
         Incident incident = incidentRepository.findById(id)
             .orElseThrow(() -> new IncidentNotFoundException("Incident with ID " + id + " not found."));

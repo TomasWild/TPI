@@ -1,5 +1,6 @@
 package com.utn.argentina_programa.incident_reporting_system.service;
 
+import com.utn.argentina_programa.incident_reporting_system.exception.ClientNotFoundException;
 import com.utn.argentina_programa.incident_reporting_system.exception.TechnicianNotFoundException;
 import com.utn.argentina_programa.incident_reporting_system.model.Technician;
 import com.utn.argentina_programa.incident_reporting_system.repository.TechnicianRepository;
@@ -31,6 +32,17 @@ public class TechnicianService {
     public List<Technician> findTechnicianByAvailability(boolean isAvailable) {
         return technicianRepository.findTechnicianByAvailability(isAvailable)
             .orElse(Collections.emptyList());
+    }
+
+    public Technician updateTechnician(Long id,
+                                       Technician updateTechnician) {
+        Technician existingTechnician = technicianRepository.findById(id)
+            .orElseThrow(() -> new TechnicianNotFoundException("Technician with ID " + id + " not found."));
+        existingTechnician.setName(updateTechnician.getName());
+        existingTechnician.setSkills(updateTechnician.getSkills());
+        existingTechnician.setMeansOfNotification(updateTechnician.getMeansOfNotification());
+        existingTechnician.setAvailable(updateTechnician.isAvailable());
+        return technicianRepository.save(existingTechnician);
     }
 
     public void deleteTechnicianById(Long id) {

@@ -12,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -19,6 +20,8 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -74,6 +77,75 @@ public class TechnicianServiceTest {
         Long technicianId = 1L;
         when(technicianRepository.findById(technicianId)).thenReturn(Optional.empty());
         assertThrows(TechnicianNotFoundException.class, () -> technicianService.findTechnicianById(technicianId));
+    }
+
+    @Test
+    public void testFindTechnicianByAvailabilityWhenAvailable() {
+        boolean isAvailable = true;
+        List<Technician> expectedTechnicians = Arrays.asList(
+            new Technician(1L, "Technician Test 1", Set.of(), MeansOfNotification.EMAIL, true),
+            new Technician(2L, "Technician Test 2", Set.of(), MeansOfNotification.WHATSAPP, true)
+        );
+        when(technicianRepository.findTechnicianByAvailability(isAvailable))
+            .thenReturn(Optional.of(expectedTechnicians));
+        List<Technician> actualTechnicians = technicianService.findTechnicianByAvailability(isAvailable);
+        assertEquals(expectedTechnicians, actualTechnicians);
+    }
+
+    @Test
+    public void testFindTechnicianByAvailabilityWhenNotAvailable() {
+        boolean isAvailable = false;
+        when(technicianRepository.findTechnicianByAvailability(isAvailable))
+            .thenReturn(Optional.empty());
+        List<Technician> actualTechnicians = technicianService.findTechnicianByAvailability(isAvailable);
+        assertEquals(Collections.emptyList(), actualTechnicians);
+    }
+
+    @Test
+    public void testUpdateTechnicianSuccess() {
+        Long technicianId = 1L;
+        Technician existingTechnician = new Technician(
+            1L,
+            "Technician Test 1",
+            Set.of(),
+            MeansOfNotification.EMAIL,
+            true
+        );
+        Technician updateTechnician = new Technician(
+            1L,
+            "Technician Update Test",
+            Set.of(),
+            MeansOfNotification.EMAIL,
+            true
+        );
+        when(technicianRepository.findById(technicianId)).thenReturn(Optional.of(existingTechnician));
+        when(technicianRepository.save(any())).thenReturn(existingTechnician);
+        Technician result = technicianService.updateTechnician(technicianId, updateTechnician);
+        assertEquals(updateTechnician.getName(), existingTechnician.getName());
+        assertEquals(updateTechnician.getSkills(), existingTechnician.getSkills());
+        assertEquals(updateTechnician.getMeansOfNotification(), existingTechnician.getMeansOfNotification());
+        assertEquals(updateTechnician.isAvailable(), existingTechnician.isAvailable());
+        verify(technicianRepository, times(1)).findById(technicianId);
+        verify(technicianRepository, times(1)).save(existingTechnician);
+    }
+
+    @Test
+    public void testUpdateTechnicianNotFound() {
+        Long technicianId = 1L;
+        Technician updateTechnician = new Technician(
+            1L,
+            "Technician Test 1",
+            Set.of(),
+            MeansOfNotification.EMAIL,
+            true
+        );
+        when(technicianRepository.findById(technicianId)).thenReturn(Optional.empty());
+        assertThrows(
+            TechnicianNotFoundException.class,
+            () -> technicianService.updateTechnician(technicianId, updateTechnician)
+        );
+        verify(technicianRepository, times(1)).findById(technicianId);
+        verify(technicianRepository, never()).save(any());
     }
 
     @Test

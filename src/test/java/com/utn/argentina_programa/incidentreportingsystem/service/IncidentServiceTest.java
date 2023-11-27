@@ -25,6 +25,8 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -97,6 +99,64 @@ public class IncidentServiceTest {
         Long incidentId = 1L;
         when(incidentRepository.findById(incidentId)).thenReturn(Optional.empty());
         assertThrows(IncidentNotFoundException.class, () -> incidentService.findIncidentById(incidentId));
+    }
+
+    @Test
+    public void testUpdateIncidentSuccess() {
+        Long incidentId = 1L;
+        Incident existingIncident = new Incident(
+            new Client("Client Test 1", "123456789", Set.of("SAP", "Windows")),
+            new Technician("Technician Test 1", Set.of(), MeansOfNotification.EMAIL, true),
+            new Problem("Problem test 1", Set.of(), LocalDateTime.now().plusMonths(1L)),
+            "Title test",
+            "Description test 1",
+            State.IN_PROGRESS,
+            LocalDate.now(),
+            LocalDate.now().plusDays(8L)
+        );
+        Incident updateIncident = new Incident(
+            new Client("Client Update Test", "123456789", Set.of("SAP", "Windows")),
+            new Technician("Technician Update Test", Set.of(), MeansOfNotification.EMAIL, true),
+            new Problem("Problem update test", Set.of(), LocalDateTime.now().plusMonths(1L)),
+            "Title update test",
+            "Description update test",
+            State.IN_PROGRESS,
+            LocalDate.now(),
+            LocalDate.now().plusDays(8L)
+        );
+        when(incidentRepository.findById(incidentId)).thenReturn(Optional.of(existingIncident));
+        when(incidentRepository.save(any())).thenReturn(existingIncident);
+        Incident result = incidentService.updateIncident(incidentId, updateIncident);
+        assertEquals(updateIncident.getClient(), existingIncident.getClient());
+        assertEquals(updateIncident.getTechnician(), existingIncident.getTechnician());
+        assertEquals(updateIncident.getProblem(), existingIncident.getProblem());
+        assertEquals(updateIncident.getTitle(), existingIncident.getTitle());
+        assertEquals(updateIncident.getDescription(), existingIncident.getDescription());
+        assertEquals(updateIncident.getState(), existingIncident.getState());
+        assertEquals(updateIncident.getCreationDate(), existingIncident.getCreationDate());
+        assertEquals(updateIncident.getResolutionDate(), existingIncident.getResolutionDate());
+        verify(incidentRepository, times(1)).findById(incidentId);
+        verify(incidentRepository, times(1)).save(existingIncident);
+    }
+
+    @Test
+    public void testUpdateIncidentNotFound() {
+        Long incidentId = 1L;
+        Incident updateIncident = new Incident(
+            1L,
+            new Client(),
+            new Technician(),
+            new Problem(),
+            "Title test",
+            "Description test",
+            State.IN_PROGRESS,
+            LocalDate.now(),
+            LocalDate.now().plusDays(7L)
+        );
+        when(incidentRepository.findById(incidentId)).thenReturn(Optional.empty());
+        assertThrows(IncidentNotFoundException.class, () -> incidentService.updateIncident(incidentId, updateIncident));
+        verify(incidentRepository, times(1)).findById(incidentId);
+        verify(incidentRepository, never()).save(any());
     }
 
     @Test

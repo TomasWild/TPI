@@ -22,17 +22,22 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
 import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ContextConfiguration(classes = IncidentReportingSystemApplication.class)
 @WebMvcTest(controllers = TechnicianController.class)
@@ -93,7 +98,58 @@ public class TechnicianControllerTest {
         ResultActions response = mockMvc.perform(get("/api/v1/technicians/{id}", technicianId)
             .contentType(MediaType.APPLICATION_JSON));
         response.andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.content().json(objectMapper.writeValueAsString(technician)))
+            .andExpect(content().json(objectMapper.writeValueAsString(technician)))
+            .andDo(MockMvcResultHandlers.print());
+    }
+
+    @Test
+    public void testGetTechniciansByAvailabilityWhenAvailable() throws Exception {
+        boolean isAvailable = true;
+        List<Technician> expectedTechnicians = Arrays.asList(
+            new Technician("Technician Test 1", Set.of(), MeansOfNotification.EMAIL, true),
+            new Technician("Technician Test 2", Set.of(), MeansOfNotification.WHATSAPP, true)
+        );
+        when(technicianService.findTechnicianByAvailability(anyBoolean()))
+            .thenReturn(expectedTechnicians);
+        mockMvc.perform(get("/api/v1/technicians/availability")
+                .param("isAvailable", String.valueOf(isAvailable))
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$").isArray())
+            .andExpect(jsonPath("$.length()").value(expectedTechnicians.size()))
+            .andDo(MockMvcResultHandlers.print());
+    }
+
+    @Test
+    public void testGetTechniciansByAvailabilityWhenNotAvailable() throws Exception {
+        boolean isAvailable = false;
+        when(technicianService.findTechnicianByAvailability(anyBoolean()))
+            .thenReturn(Collections.emptyList());
+        mockMvc.perform(get("/api/v1/technicians/availability")
+                .param("isAvailable", String.valueOf(isAvailable))
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$").isArray())
+            .andExpect(jsonPath("$.length()").value(0))
+            .andDo(MockMvcResultHandlers.print());
+    }
+
+    @Test
+    public void testUpdateTechnicianApi() throws Exception {
+        Long technicianId = 1L;
+        Technician updatedTechnician = new Technician(
+            "Technician Update Test",
+            Set.of(),
+            MeansOfNotification.EMAIL,
+            true
+        );
+        given(technicianService.updateTechnician(technicianId, updatedTechnician)).willReturn(updatedTechnician);
+        ResultActions response = mockMvc.perform(put("/api/v1/technicians/{id}", technicianId)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(updatedTechnician)));
+        response.andExpect(status().isOk())
+            .andExpect(MockMvcResultMatchers.content().json(objectMapper.writeValueAsString(updatedTechnician)))
             .andDo(MockMvcResultHandlers.print());
     }
 

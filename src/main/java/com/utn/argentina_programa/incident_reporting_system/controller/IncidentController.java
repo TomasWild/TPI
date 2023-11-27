@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -37,6 +38,13 @@ public class IncidentController {
     public ResponseEntity<Incident> getIncidentById(@PathVariable("id") Long id) {
         Incident incident = incidentService.findIncidentById(id);
         return new ResponseEntity<>(incident, HttpStatus.OK);
+    }
+
+    @PutMapping("{id}")
+    public ResponseEntity<Incident> updateIncident(@PathVariable("id") Long id,
+                                                   @RequestBody Incident incident) {
+        Incident updatedIncident = incidentService.updateIncident(id, incident);
+        return new ResponseEntity<>(updatedIncident, HttpStatus.OK);
     }
 
     @DeleteMapping("{id}")

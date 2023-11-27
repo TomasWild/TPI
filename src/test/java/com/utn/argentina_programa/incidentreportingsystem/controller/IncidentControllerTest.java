@@ -35,7 +35,9 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ContextConfiguration(classes = IncidentReportingSystemApplication.class)
 @WebMvcTest(controllers = IncidentController.class)
@@ -121,6 +123,28 @@ public class IncidentControllerTest {
             .contentType(MediaType.APPLICATION_JSON));
         response.andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().json(objectMapper.writeValueAsString(incident)))
+            .andDo(MockMvcResultHandlers.print());
+    }
+
+    @Test
+    public void testUpdateIncidentApi() throws Exception {
+        Long incidentId = 1L;
+        Incident updatedIncident = new Incident(
+            new Client(),
+            new Technician(),
+            new Problem(),
+            "Title update test",
+            "Description update test",
+            State.IN_PROGRESS,
+            LocalDate.now(),
+            LocalDate.now().plusDays(1L)
+        );
+        given(incidentService.updateIncident(incidentId, updatedIncident)).willReturn(updatedIncident);
+        ResultActions response = mockMvc.perform(put("/api/v1/incidents/{id}", incidentId)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(updatedIncident)));
+        response.andExpect(status().isOk())
+            .andExpect(MockMvcResultMatchers.content().json(objectMapper.writeValueAsString(updatedIncident)))
             .andDo(MockMvcResultHandlers.print());
     }
 

@@ -27,6 +27,16 @@ public class ClientService {
             .orElseThrow(() -> new ClientNotFoundException("Client with ID " + id + " not found."));
     }
 
+    public Client updateClient(Long id,
+                               Client updateClient) {
+        Client existingClient = clientRepository.findById(id)
+            .orElseThrow(() -> new ClientNotFoundException("Client with ID " + id + " not found."));
+        existingClient.setBusinessName(updateClient.getBusinessName());
+        existingClient.setCuit(updateClient.getCuit());
+        existingClient.setHiredServices(updateClient.getHiredServices());
+        return clientRepository.save(existingClient);
+    }
+
     public void deleteClientById(Long id) {
         Client client = clientRepository.findById(id)
             .orElseThrow(() -> new ClientNotFoundException("Client with ID " + id + " not found."));

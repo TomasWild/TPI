@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -44,6 +45,13 @@ public class TechnicianController {
     public ResponseEntity<List<Technician>> getTechniciansByAvailability(@RequestParam("isAvailable") boolean isAvailable) {
         List<Technician> technicians = technicianService.findTechnicianByAvailability(isAvailable);
         return new ResponseEntity<>(technicians, HttpStatus.OK);
+    }
+
+    @PutMapping("{id}")
+    public ResponseEntity<Technician> updateTechnician(@PathVariable("id") Long id,
+                                                       @RequestBody Technician technician) {
+        Technician updatedTechnician = technicianService.updateTechnician(id, technician);
+        return new ResponseEntity<>(updatedTechnician, HttpStatus.OK);
     }
 
     @DeleteMapping("{id}")
