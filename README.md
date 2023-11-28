@@ -92,7 +92,7 @@ el ORM Hibernate.
 - Quién fue el técnico que más rápido resolvió los incidentes
 
 # Integrantes
-- Brian Reil.
-- Charo Lértora.
-- Ignacio Angiono.
 - Tomás Wild.
+- ~~Brian Reil~~.
+- ~~Charo Lértora~~.
+- ~~Ignacio Angiono~~.
