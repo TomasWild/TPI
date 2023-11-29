@@ -1,6 +1,5 @@
 package com.utn.argentina_programa.incident_reporting_system.service;
 
-import com.utn.argentina_programa.incident_reporting_system.exception.ClientNotFoundException;
 import com.utn.argentina_programa.incident_reporting_system.exception.TechnicianNotFoundException;
 import com.utn.argentina_programa.incident_reporting_system.model.Technician;
 import com.utn.argentina_programa.incident_reporting_system.repository.TechnicianRepository;
